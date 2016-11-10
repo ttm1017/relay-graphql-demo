@@ -156,6 +156,5 @@ export function getLUKE () {
   return LUKE;
 }
 export function getCharacter(id) {
-  console.log(id);
   return characters[id]
 }

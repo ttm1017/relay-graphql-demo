@@ -241,6 +241,22 @@ const factionType = new GraphQLObjectType({
 //     node: nodeField,
 //   }),
 // });
+const commonFriendsType = new GraphQLObjectType({
+  name: 'commonFriends',
+  description: 'return two people common friends',
+  fields: () => ({
+    id: globalIdField('commonFriends'),
+    name: {
+      type: GraphQLString,
+      description: 'friends'
+    }
+  }),
+  interfaces: [nodeInterface]
+});
+const {
+    connectionType: commonFriendsConnection,
+    edgeType: commonFriendsEdge
+} = connectionDefinitions({name: 'commonFriends', nodeType: commonFriendsType})
 const characterType = new GraphQLObjectType({
   name: 'Character',
   description: 'character model',
@@ -250,13 +266,28 @@ const characterType = new GraphQLObjectType({
       type: GraphQLString,
       description: 'The character name.'
     },
-    friends: {
-      type: GraphQLString,
-      description: 'The character friends.'
+    commonfriends: {
+      type: new GraphQLList(commonFriendsType),
+      description: 'The character friends.',
+      args: {
+        firstPeople: {type: GraphQLString},
+        secondPeople: {type: GraphQLString}
+      },
+      resolve: (character, args) => {
+        let peopleId = [];
+        for (var obj in args) {
+          peopleId.push(args[obj])
+        }
+        const commonFriends = getCharacter(peopleId[0]).friends.filter(function(n) {
+          return getCharacter(peopleId[1]).friends.indexOf(n) != -1;
+        });
+        return commonFriends.map((value) => getCharacter(value));
+      }
     }
   }),
   interfaces: [nodeInterface],
 });
+
 const queryType = new GraphQLObjectType({
   name: 'Query',
   fields: () => ({
