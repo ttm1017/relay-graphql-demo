@@ -12,12 +12,32 @@
 
 import React from 'react';
 import Relay from 'react-relay';
-let id;
 class StarWarsShip extends React.Component {
+  handleChangeFirst = (e) => {
+    this.props.relay.setVariables({firstPeople: e.target.value});
+  };
+  handleChangeSecond = (e) => {
+    this.props.relay.setVariables({secondPeople: e.target.value})
+  };
   render() {
     const {character} = this.props;
-    id = character.id;
-    return <div>{character.name}</div>;
+    console.log(character);
+    let {firstPeople, secondPeople} = this.props.relay.variables;
+    return <div>
+      <select defaultValue={firstPeople} onChange={this.handleChangeFirst}>
+        <option value="1">LUKE</option>
+        <option value="2">R2D2</option>
+        <option value="3">C3PO</option>
+        <option value="4">CHEWBACCA</option>
+      </select>
+      <select defaultValue={secondPeople} onChange={this.handleChangeSecond}>
+        <option value="1">LUKE</option>
+        <option value="2">R2D2</option>
+        <option value="3">C3PO</option>
+        <option value="4">CHEWBACCA</option>
+      </select>
+      <h3>{character.commonfriends.map((value)=>value.name+' ')}</h3>
+    </div>;
   }
 }
 
@@ -29,8 +49,6 @@ export default Relay.createContainer(StarWarsShip, {
   fragments: {
     character: () => Relay.QL`
       fragment on Character {
-        id,
-        name,
         commonfriends(firstPeople: $firstPeople, secondPeople: $secondPeople){
           name
         }

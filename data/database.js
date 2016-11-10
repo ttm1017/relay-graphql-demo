@@ -158,3 +158,6 @@ export function getLUKE () {
 export function getCharacter(id) {
   return characters[id]
 }
+export function getAllCharacter() {
+  return characters;
+}

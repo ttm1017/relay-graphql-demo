@@ -34,7 +34,8 @@ import {
 
 import {
     getLUKE,
-    getCharacter
+    getCharacter,
+    getAllCharacter
 } from './database';
 
 /**
@@ -126,13 +127,15 @@ const {nodeInterface, nodeField} = nodeDefinitions(
     } else if (type === 'Ship ') {
       return getShip(id);
     } else if (type === 'Character') {
+      return getAllCharacter();
+    } else if (type === 'commonFriends') {
       return getCharacter(id);
     } else {
       return null;
     }
   },
   (obj) => {
-    return obj.friends ? characterType : shipType;
+    return obj.friends ? commonFriendsType : characterType;
   }
 );
 
@@ -262,10 +265,6 @@ const characterType = new GraphQLObjectType({
   description: 'character model',
   fields: () => ({
     id: globalIdField('Character'),
-    name: {
-      type: GraphQLString,
-      description: 'The character name.'
-    },
     commonfriends: {
       type: new GraphQLList(commonFriendsType),
       description: 'The character friends.',
@@ -281,6 +280,7 @@ const characterType = new GraphQLObjectType({
         const commonFriends = getCharacter(peopleId[0]).friends.filter(function(n) {
           return getCharacter(peopleId[1]).friends.indexOf(n) != -1;
         });
+        console.log(commonFriends );
         return commonFriends.map((value) => getCharacter(value));
       }
     }
@@ -293,7 +293,7 @@ const queryType = new GraphQLObjectType({
   fields: () => ({
     character: {
       type: characterType,
-      resolve: () => {return getLUKE();}
+      resolve: () => {return getAllCharacter()}
     },
     node: nodeField
   })
