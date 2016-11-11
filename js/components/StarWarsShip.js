@@ -1,17 +1,9 @@
-/**
- * This file provided by Facebook is for non-commercial testing and evaluation
- * purposes only.  Facebook reserves all rights not expressly granted.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
- * FACEBOOK BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
- * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
 
 import React from 'react';
 import Relay from 'react-relay';
+import ReactHighcharts from 'react-highcharts';
+//const ReactHighcharts = require('react-highcharts');
+console.log(ReactHighcharts );
 class StarWarsShip extends React.Component {
   handleChangeFirst = (e) => {
     this.props.relay.setVariables({firstPeople: e.target.value});
@@ -21,7 +13,34 @@ class StarWarsShip extends React.Component {
   };
   render() {
     const {character} = this.props;
-    console.log(character);
+    const config = {
+      chart: {
+      plotBackgroundColor: null,
+      plotBorderWidth: null,
+      plotShadow: false,
+      type: 'pie'
+    },
+      title: {
+        text: 'Show every period the number of the characters'
+      },
+      tooltip: {
+        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+      },
+      plotOptions: {
+        pie: {
+          allowPointSelect: true,
+          cursor: 'pointer',
+          dataLabels: {
+            enabled: true,
+            format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+          }
+        }
+      },
+      series: [{
+        name: 'characters compare percent',
+        colorByPoint: true,
+        data: character.characterOfPeriod.map((value) => ({name: value.period, y: value.number}))
+      }]};
     let {firstPeople, secondPeople} = this.props.relay.variables;
     return <div>
       <select defaultValue={firstPeople} onChange={this.handleChangeFirst}>
@@ -37,10 +56,11 @@ class StarWarsShip extends React.Component {
         <option value="4">CHEWBACCA</option>
       </select>
       <h3>{character.commonfriends.map((value)=>value.name+' ')}</h3>
+      <ReactHighcharts config={config}></ReactHighcharts>
     </div>;
   }
 }
-
+// <ReactHighcharts config = {}></ReactHighcharts>
 export default Relay.createContainer(StarWarsShip, {
   initialVariables: {
     firstPeople: '1',
@@ -51,6 +71,10 @@ export default Relay.createContainer(StarWarsShip, {
       fragment on Character {
         commonfriends(firstPeople: $firstPeople, secondPeople: $secondPeople){
           name
+        },
+        characterOfPeriod {
+          period,
+          number
         }
       }
     `,
